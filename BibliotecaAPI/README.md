@@ -14,7 +14,22 @@ API REST para gestão de biblioteca desenvolvida em **ASP.NET Core 8** com **Ent
 ## Como Executar
 
 ### Pré-requisitos
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) instalado em `~/.dotnet`
+
+### ⚠️ Atenção — Configuração do PATH (Linux Mint)
+
+Se ao rodar `dotnet` você receber o erro `[/usr/lib/dotnet/host/fxr] does not exist`, é porque o sistema possui uma instalação corrompida do dotnet em `/usr/bin/dotnet`. O SDK funcional está em `~/.dotnet`.
+
+**Solução permanente** — abra um **novo terminal** e execute uma vez:
+
+```bash
+# Garante que ~/.dotnet tem prioridade no PATH
+echo 'export DOTNET_ROOT="$HOME/.dotnet"' >> ~/.bashrc
+echo 'export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+> Esta configuração já está aplicada se você usou o terminal do projeto antes. Basta **abrir um terminal novo** para que o `source ~/.bashrc` seja carregado automaticamente.
 
 ### Passos
 
@@ -25,15 +40,15 @@ cd BibliotecaAPI
 # 2. Restaurar dependências
 dotnet restore
 
-# 3. Executar a API (migrations são aplicadas automaticamente)
+# 3. Executar a API (migrations são aplicadas automaticamente na inicialização)
 dotnet run
 ```
 
-A API estará disponível em: **http://localhost:5000**
+A API estará disponível em: **http://localhost:5000** (porta exata aparece no terminal ao iniciar)
 
-O Swagger (documentação interativa) estará em: **http://localhost:5000** (rota raiz)
+O Swagger (documentação interativa) estará na **rota raiz**: `http://localhost:{porta}/`
 
-> O banco `biblioteca.db` é criado automaticamente na primeira execução.
+> O banco `biblioteca.db` é criado e migrado automaticamente na primeira execução.
 
 ---
 
