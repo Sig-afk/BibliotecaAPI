@@ -33,3 +33,6 @@ artifacts/
 *.nupkg
 *.snupkg
 packages/
+
+# Local Docker configuration
+.env

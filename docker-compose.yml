@@ -1,0 +1,85 @@
+name: biblioteca
+
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-biblioteca}
+      POSTGRES_USER: ${POSTGRES_USER:-biblioteca_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-biblioteca_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks: [biblioteca]
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [biblioteca]
+
+  backend:
+    build:
+      context: .
+      target: backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DatabaseProvider: Postgres
+      ConnectionStrings__DefaultConnection: Host=database;Port=5432;Database=${POSTGRES_DB:-biblioteca};Username=${POSTGRES_USER:-biblioteca_user};Password=${POSTGRES_PASSWORD:-biblioteca_password}
+      ConnectionStrings__Redis: redis:6379
+      DemoAuth__Email: ${DEMO_AUTH_EMAIL:-admin@biblioteca.local}
+      DemoAuth__Password: ${DEMO_AUTH_PASSWORD:-admin123}
+      DemoAuth__Name: ${DEMO_AUTH_NAME:-Bibliotecário(a)}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+    networks: [biblioteca]
+
+  frontend:
+    build:
+      context: .
+      target: frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks: [biblioteca]
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  biblioteca:
+    driver: bridge
