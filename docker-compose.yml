@@ -37,7 +37,7 @@ services:
       target: backend
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      DatabaseProvider: Postgres
+      Database__Provider: Postgres
       ConnectionStrings__DefaultConnection: Host=database;Port=5432;Database=${POSTGRES_DB:-biblioteca};Username=${POSTGRES_USER:-biblioteca_user};Password=${POSTGRES_PASSWORD:-biblioteca_password}
       ConnectionStrings__Redis: redis:6379
       DemoAuth__Email: ${DEMO_AUTH_EMAIL:-admin@biblioteca.local}

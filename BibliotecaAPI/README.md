@@ -1,20 +1,21 @@
 # BibliotecaAPI 📚
 
-API REST para gestão de biblioteca desenvolvida em **ASP.NET Core 8** com **Entity Framework Core** e **SQLite**.
+API REST para gestão de biblioteca desenvolvida em **ASP.NET Core 10** com **Entity Framework Core**, SQLite e PostgreSQL.
 
 ## Stack Tecnológica
 
 | Tecnologia | Versão |
 |---|---|
-| .NET / ASP.NET Core | 8.0 |
-| Entity Framework Core | 8.x |
-| Banco de Dados | SQLite |
+| .NET / ASP.NET Core | 10.0 |
+| Entity Framework Core | 10.x |
+| Banco de Dados | SQLite local / PostgreSQL no Docker |
+| Cache e monitoramento | Redis |
 | Documentação | Swagger / OpenAPI |
 
 ## Como Executar
 
 ### Pré-requisitos
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) instalado em `~/.dotnet`
+- .NET 10 SDK
 
 ### ⚠️ Atenção — Configuração do PATH (Linux Mint)
 
@@ -46,7 +47,7 @@ dotnet run
 
 A API estará disponível em: **http://localhost:5000** (porta exata aparece no terminal ao iniciar)
 
-O Swagger (documentação interativa) estará na **rota raiz**: `http://localhost:{porta}/`
+O Swagger (documentação interativa) estará em `http://localhost:{porta}/docs/`.
 
 > O banco `biblioteca.db` é criado e migrado automaticamente na primeira execução.
 
@@ -56,16 +57,19 @@ O Swagger (documentação interativa) estará na **rota raiz**: `http://localhos
 
 ```
 BibliotecaAPI/
-├── Controllers/       # Endpoints HTTP
-├── Data/              # DbContext (EF Core)
-├── DTOs/              # Objetos de entrada e saída
+├── Configuration/     # Opções tipadas da aplicação
+├── Controllers/       # Adaptadores HTTP, sem regras de negócio
+├── Data/              # DbContext, inicialização, seed e Unit of Work
+├── DTOs/              # Contratos separados por domínio
+├── Extensions/        # Composição da aplicação e injeção de dependência
 ├── Exceptions/        # Exceções customizadas (NotFoundException, ConflictException)
+├── Mappings/          # Conversão entre entidades e DTOs
+├── Middleware/        # Tratamento global de erros (ProblemDetails)
 ├── Migrations/        # Histórico de migrações do banco
 ├── Models/            # Entidades de domínio
 ├── Repositories/      # Interfaces + implementações de acesso a dados
 ├── Services/          # Interfaces + implementações da lógica de negócio
-├── ErrorHandlingMiddleware.cs  # Tratamento global de erros (ProblemDetails)
-├── Program.cs         # Configuração de DI, middleware e pipeline
+├── Program.cs         # Composition root enxuto
 └── appsettings.json   # String de conexão e configurações
 ```
 
@@ -160,6 +164,9 @@ BibliotecaAPI/
 - **Repository Pattern**: Separação entre acesso a dados e lógica de negócio.
 - **Service Layer**: Toda regra de negócio fica nos Services, nunca nos Controllers.
 - **Injeção de Dependência por interfaces**: Facilita testes e substituição de componentes.
+- **Unit of Work**: cada caso de uso persiste todas as alterações em um único commit atômico.
+- **Options Pattern**: configurações de banco e autenticação são tipadas e validadas na inicialização.
+- **SOLID**: controllers, serviços, mapeadores, infraestrutura e bootstrap possuem responsabilidades isoladas.
 - **Middleware Global de Erros**: Sem `try/catch` nos Controllers. Erros são capturados centralmente.
 - **Programação Assíncrona**: `async/await` em todas as operações de banco.
 - **DTOs**: Objetos específicos para entrada e saída, sem expor entidades do banco diretamente.

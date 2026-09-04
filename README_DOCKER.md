@@ -17,7 +17,7 @@ desenvolvimento.
 |---|---|---|
 | Frontend | http://localhost:3000 | Interface e proxy reverso |
 | API | http://localhost:8080 | ASP.NET Core |
-| Swagger | http://localhost:3000/docs/ | Documentação da API |
+| Swagger | http://localhost:3000/docs/ | Documentação da API pelo proxy |
 | PostgreSQL | somente rede interna | Persistência |
 | Redis | somente rede interna | Cache/healthcheck |
 
@@ -39,5 +39,5 @@ docker compose down
 Para remover também os dados persistidos, use explicitamente `docker compose down -v`.
 
 Fora do Docker, a API continua usando SQLite por padrão. No Compose,
-`DatabaseProvider=Postgres` seleciona PostgreSQL sem tentar reaproveitar migrations
+`Database__Provider=Postgres` seleciona PostgreSQL sem tentar reaproveitar migrations
 específicas do SQLite.

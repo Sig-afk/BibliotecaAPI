@@ -4,18 +4,24 @@ using BibliotecaAPI.Repositories;
 using BibliotecaAPI.Models;
 using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Exceptions;
+using BibliotecaAPI.Data;
 
 namespace BibliotecaAPI.Tests.Services;
 
 public class AutorServiceTests
 {
     private readonly Mock<IAutorRepository> _repoMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly AutorService _service;
 
     public AutorServiceTests()
     {
         _repoMock = new Mock<IAutorRepository>();
-        _service = new AutorService(_repoMock.Object);
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _unitOfWorkMock
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _service = new AutorService(_repoMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -55,7 +61,6 @@ public class AutorServiceTests
             Nacionalidade = "Britânico",
             DataNascimento = new DateTime(1963, 12, 18)
         };
-        _repoMock.Setup(r => r.AddAsync(It.IsAny<Autor>())).ReturnsAsync((Autor a) => a);
 
         // Act
         var resultado = await _service.CreateAsync(dto);
@@ -92,7 +97,6 @@ public class AutorServiceTests
     {
         // Arrange
         var dto = new CriarAutorDto { Nome = nome, Nacionalidade = nacionalidade, DataNascimento = DateTime.Today };
-        _repoMock.Setup(r => r.AddAsync(It.IsAny<Autor>())).ReturnsAsync((Autor a) => a);
 
         // Act
         var resultado = await _service.CreateAsync(dto);

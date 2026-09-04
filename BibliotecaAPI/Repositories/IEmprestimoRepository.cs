@@ -7,6 +7,5 @@ public interface IEmprestimoRepository
     Task<IEnumerable<Emprestimo>> GetAllAsync();
     Task<Emprestimo?> GetByIdAsync(int id);
     Task<Emprestimo?> GetEmprestimoAtivoAsync(int alunoId, int livroId);
-    Task<Emprestimo> AddAsync(Emprestimo emprestimo);
-    Task SaveChangesAsync();
+    void Add(Emprestimo emprestimo);
 }

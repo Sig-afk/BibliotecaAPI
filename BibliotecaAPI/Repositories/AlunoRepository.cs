@@ -4,7 +4,7 @@ using BibliotecaAPI.Models;
 
 namespace BibliotecaAPI.Repositories;
 
-public class AlunoRepository : IAlunoRepository
+public sealed class AlunoRepository : IAlunoRepository
 {
     private readonly BibliotecaContext _context;
 
@@ -15,7 +15,7 @@ public class AlunoRepository : IAlunoRepository
 
     public async Task<IEnumerable<Aluno>> GetAllAsync()
     {
-        return await _context.Alunos.ToListAsync();
+        return await _context.Alunos.AsNoTracking().ToListAsync();
     }
 
     public async Task<Aluno?> GetByIdAsync(int id)
@@ -28,14 +28,9 @@ public class AlunoRepository : IAlunoRepository
         return await _context.Alunos.FirstOrDefaultAsync(a => a.Matricula == matricula);
     }
 
-    public Task<Aluno> AddAsync(Aluno aluno)
+    public void Add(Aluno aluno)
     {
         _context.Alunos.Add(aluno);
-        return Task.FromResult(aluno);
     }
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
 }

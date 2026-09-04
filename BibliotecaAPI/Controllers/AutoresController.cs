@@ -6,7 +6,7 @@ namespace BibliotecaAPI.Controllers;
 
 [ApiController]
 [Route("api/autores")]
-public class AutoresController : ControllerBase
+public sealed class AutoresController : ControllerBase
 {
     private readonly IAutorService _service;
 

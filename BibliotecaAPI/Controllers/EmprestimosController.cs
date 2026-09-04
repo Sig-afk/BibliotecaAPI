@@ -6,7 +6,7 @@ namespace BibliotecaAPI.Controllers;
 
 [ApiController]
 [Route("api/emprestimos")]
-public class EmprestimosController : ControllerBase
+public sealed class EmprestimosController : ControllerBase
 {
     private readonly IEmprestimoService _service;
 

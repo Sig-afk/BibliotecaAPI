@@ -4,6 +4,7 @@ using BibliotecaAPI.Repositories;
 using BibliotecaAPI.Models;
 using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Exceptions;
+using BibliotecaAPI.Data;
 
 namespace BibliotecaAPI.Tests.Services;
 
@@ -11,13 +12,21 @@ public class LivroServiceTests
 {
     private readonly Mock<ILivroRepository> _livroRepoMock;
     private readonly Mock<IAutorRepository> _autorRepoMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly LivroService _service;
 
     public LivroServiceTests()
     {
         _livroRepoMock = new Mock<ILivroRepository>();
         _autorRepoMock = new Mock<IAutorRepository>();
-        _service = new LivroService(_livroRepoMock.Object, _autorRepoMock.Object);
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _unitOfWorkMock
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _service = new LivroService(
+            _livroRepoMock.Object,
+            _autorRepoMock.Object,
+            _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -56,7 +65,6 @@ public class LivroServiceTests
         var dto = new CriarLivroDto { Titulo = "Clean Code", ISBN = "978-0", AnoPublicacao = 2008, Quantidade = 10, AutorId = 1 };
 
         _autorRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(autor);
-        _livroRepoMock.Setup(r => r.AddAsync(It.IsAny<Livro>())).ReturnsAsync((Livro l) => l);
 
         // Act
         var resultado = await _service.CreateAsync(dto);
@@ -90,7 +98,6 @@ public class LivroServiceTests
         var dto = new CriarLivroDto { Titulo = "Livro Y", ISBN = "abc", AnoPublicacao = 2024, Quantidade = quantidade, AutorId = 1 };
 
         _autorRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(autor);
-        _livroRepoMock.Setup(r => r.AddAsync(It.IsAny<Livro>())).ReturnsAsync((Livro l) => l);
 
         // Act
         var resultado = await _service.CreateAsync(dto);
