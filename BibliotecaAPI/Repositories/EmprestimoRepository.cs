@@ -4,7 +4,7 @@ using BibliotecaAPI.Models;
 
 namespace BibliotecaAPI.Repositories;
 
-public class EmprestimoRepository : IEmprestimoRepository
+public sealed class EmprestimoRepository : IEmprestimoRepository
 {
     private readonly BibliotecaContext _context;
 
@@ -16,6 +16,7 @@ public class EmprestimoRepository : IEmprestimoRepository
     public async Task<IEnumerable<Emprestimo>> GetAllAsync()
     {
         return await _context.Emprestimos
+            .AsNoTracking()
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
             .ToListAsync();
@@ -38,14 +39,9 @@ public class EmprestimoRepository : IEmprestimoRepository
                 e.Status == StatusEmprestimo.Ativo);
     }
 
-    public Task<Emprestimo> AddAsync(Emprestimo emprestimo)
+    public void Add(Emprestimo emprestimo)
     {
         _context.Emprestimos.Add(emprestimo);
-        return Task.FromResult(emprestimo);
     }
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
 }

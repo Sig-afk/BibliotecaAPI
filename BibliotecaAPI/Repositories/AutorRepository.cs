@@ -4,7 +4,7 @@ using BibliotecaAPI.Models;
 
 namespace BibliotecaAPI.Repositories;
 
-public class AutorRepository : IAutorRepository
+public sealed class AutorRepository : IAutorRepository
 {
     private readonly BibliotecaContext _context;
 
@@ -15,7 +15,7 @@ public class AutorRepository : IAutorRepository
 
     public async Task<IEnumerable<Autor>> GetAllAsync()
     {
-        return await _context.Autores.ToListAsync();
+        return await _context.Autores.AsNoTracking().ToListAsync();
     }
 
     public async Task<Autor?> GetByIdAsync(int id)
@@ -23,14 +23,9 @@ public class AutorRepository : IAutorRepository
         return await _context.Autores.FindAsync(id);
     }
 
-    public Task<Autor> AddAsync(Autor autor)
+    public void Add(Autor autor)
     {
         _context.Autores.Add(autor);
-        return Task.FromResult(autor);
     }
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
 }

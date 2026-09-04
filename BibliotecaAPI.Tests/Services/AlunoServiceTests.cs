@@ -4,18 +4,24 @@ using BibliotecaAPI.Repositories;
 using BibliotecaAPI.Models;
 using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Exceptions;
+using BibliotecaAPI.Data;
 
 namespace BibliotecaAPI.Tests.Services;
 
 public class AlunoServiceTests
 {
     private readonly Mock<IAlunoRepository> _repoMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly AlunoService _service;
 
     public AlunoServiceTests()
     {
         _repoMock = new Mock<IAlunoRepository>();
-        _service = new AlunoService(_repoMock.Object);
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _unitOfWorkMock
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _service = new AlunoService(_repoMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -51,7 +57,6 @@ public class AlunoServiceTests
         // Arrange
         var dto = new CriarAlunoDto { Nome = "Carlos", Matricula = "MAT123", Email = "carlos@email.com" };
         _repoMock.Setup(r => r.GetByMatriculaAsync("MAT123")).ReturnsAsync((Aluno?)null);
-        _repoMock.Setup(r => r.AddAsync(It.IsAny<Aluno>())).ReturnsAsync((Aluno a) => a);
 
         // Act
         var resultado = await _service.CreateAsync(dto);

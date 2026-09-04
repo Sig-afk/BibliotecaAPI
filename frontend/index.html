@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sistema web da BibliotecaAPI para gerenciamento de livros e empréstimos." />
+  <title>Biblioteca | Gestão</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- TELA 1: LOGIN -->
+  <main id="login-view" class="login-view">
+    <section class="login-brand" aria-label="Apresentação">
+      <div class="login-glow glow-one" aria-hidden="true"></div>
+      <div class="login-glow glow-two" aria-hidden="true"></div>
+      <div class="brand-mark large" aria-hidden="true"><span>B</span></div>
+      <div class="login-copy">
+        <p class="eyebrow light"><span class="live-dot"></span> Biblioteca inteligente</p>
+        <h1>Histórias bem<br /><em>organizadas.</em></h1>
+        <p>Uma interface web para a API de biblioteca, executada integralmente em contêineres Docker.</p>
+      </div>
+      <div class="book-showcase" aria-hidden="true">
+        <div class="floating-note"><span>↗</span><strong>Acervo em dia</strong><small>Dados sincronizados</small></div>
+        <div class="book book-one"><i></i><span>Literatura<br />brasileira</span></div>
+        <div class="book book-two"><i></i><span>Novos<br />clássicos</span></div>
+        <div class="book book-three"><i></i><span>Grandes<br />autores</span></div>
+      </div>
+      <div class="infra-strip" aria-label="Infraestrutura">
+        <span>Frontend</span><i></i><span>ASP.NET Core</span><i></i><span>PostgreSQL</span><i></i><span>Redis</span>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <div class="login-card">
+        <div class="mobile-brand">
+          <div class="brand-mark">B</div>
+          <strong>BibliotecaAPI</strong>
+        </div>
+        <p class="eyebrow">Acesso ao sistema</p>
+        <h2>Bem-vindo de volta</h2>
+        <p class="muted">Entre com as credenciais de demonstração para acessar o painel.</p>
+
+        <form id="login-form" class="form-stack" novalidate>
+          <label class="field">
+            <span>E-mail</span>
+            <input id="login-email" name="email" type="email" autocomplete="username" value="admin@biblioteca.local" required />
+          </label>
+          <label class="field">
+            <span>Senha</span>
+            <div class="password-field">
+              <input id="login-password" name="senha" type="password" autocomplete="current-password" value="admin123" required />
+              <button id="toggle-password" type="button" class="icon-button" aria-label="Mostrar senha" aria-pressed="false"><span aria-hidden="true">◉</span></button>
+            </div>
+          </label>
+          <div id="login-error" class="inline-alert error" hidden></div>
+          <button id="login-submit" class="button primary wide" type="submit">
+            <span>Entrar no sistema</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <div class="demo-credentials">
+          <strong>Credenciais de demonstração</strong>
+          <span>admin@biblioteca.local · admin123</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- APLICAÇÃO AUTENTICADA -->
+  <div id="app-view" class="app-view" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">B</div>
+        <div>
+          <strong>Biblioteca</strong>
+          <small>Gestão do acervo</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Navegação principal">
+        <button class="nav-item active" data-page="dashboard" type="button">
+          <span class="nav-icon">⌂</span><span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-page="livros" type="button">
+          <span class="nav-icon">▤</span><span>Livros</span>
+        </button>
+        <button class="nav-item" data-page="emprestimos" type="button">
+          <span class="nav-icon">⇄</span><span>Empréstimos</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-mini-status">
+          <span id="sidebar-status-dot" class="status-dot checking"></span>
+          <div><strong id="sidebar-status-text">Verificando...</strong><small>Infraestrutura</small></div>
+        </div>
+        <button id="logout-button" class="nav-item logout" type="button">
+          <span class="nav-icon">↪</span><span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <section class="workspace">
+      <header class="topbar">
+        <button id="menu-button" class="menu-button" type="button" aria-label="Abrir menu">☰</button>
+        <div>
+          <p id="page-kicker" class="eyebrow">Visão geral</p>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <a class="button ghost desktop-only" href="/docs" target="_blank" rel="noreferrer">Documentação API</a>
+          <div class="user-chip">
+            <div id="user-avatar" class="avatar">B</div>
+            <div class="desktop-only"><strong id="user-name">Bibliotecário(a)</strong><small>Administrador</small></div>
+          </div>
+        </div>
+      </header>
+
+      <main id="main-content" class="content" tabindex="-1">
+        <!-- TELA 2: DASHBOARD -->
+        <section class="page active" data-page-panel="dashboard">
+          <div class="hero-row">
+            <div>
+              <p class="eyebrow">Resumo operacional</p>
+              <h2>Visão geral da biblioteca</h2>
+              <p class="muted">Acompanhe o acervo, usuários e movimentações em um só lugar.</p>
+            </div>
+            <button id="refresh-dashboard" class="button secondary" type="button"><span class="refresh-icon" aria-hidden="true">↻</span> Atualizar dados</button>
+          </div>
+
+          <section class="stats-grid" aria-label="Indicadores">
+            <article class="stat-card">
+              <span class="stat-icon">▤</span>
+              <div><span>Livros cadastrados</span><strong id="count-livros">—</strong><small id="count-exemplares">— exemplares disponíveis</small></div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon">⇄</span>
+              <div><span>Empréstimos</span><strong id="count-emprestimos">—</strong><small id="count-ativos">— ativos</small></div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon">◎</span>
+              <div><span>Alunos</span><strong id="count-alunos">—</strong><small>Usuários cadastrados</small></div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon">✎</span>
+              <div><span>Autores</span><strong id="count-autores">—</strong><small>No catálogo atual</small></div>
+            </article>
+          </section>
+
+          <section class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Movimentação</p><h3>Empréstimos recentes</h3></div>
+                <button class="text-button" data-go="emprestimos" type="button">Ver todos →</button>
+              </div>
+              <div class="table-wrap compact">
+                <table>
+                  <thead><tr><th>Aluno</th><th>Livro</th><th>Status</th><th>Devolução</th></tr></thead>
+                  <tbody id="recent-loans-body"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel infrastructure-card">
+              <div class="panel-head"><div><p class="eyebrow">Docker</p><h3>Saúde da infraestrutura</h3></div></div>
+              <div class="health-list">
+                <div><span class="health-icon">API</span><div><strong>Backend ASP.NET</strong><small>porta 8080</small></div><b id="health-api" class="health-pill checking">checando</b></div>
+                <div><span class="health-icon">DB</span><div><strong>PostgreSQL</strong><small>persistência</small></div><b id="health-db" class="health-pill checking">checando</b></div>
+                <div><span class="health-icon">R</span><div><strong>Redis</strong><small>cache distribuído</small></div><b id="health-redis" class="health-pill checking">checando</b></div>
+              </div>
+              <p class="health-note">O endpoint <code>/api/health</code> testa a conexão real da API com PostgreSQL e Redis.</p>
+            </article>
+          </section>
+        </section>
+
+        <!-- TELA 3: LIVROS -->
+        <section class="page" data-page-panel="livros">
+          <div class="hero-row">
+            <div>
+              <p class="eyebrow">Acervo</p>
+              <h2>Livros</h2>
+              <p class="muted">Consulte o catálogo e cadastre novos títulos.</p>
+            </div>
+            <button id="open-book-modal" class="button primary" type="button">+ Cadastrar livro</button>
+          </div>
+
+          <article class="panel">
+            <div class="toolbar">
+              <label class="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input id="book-search" type="search" placeholder="Buscar por título, autor ou ISBN..." />
+              </label>
+              <span id="book-result-count" class="result-count">0 livros</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Livro</th><th>ISBN</th><th>Ano</th><th>Disponíveis</th></tr></thead>
+                <tbody id="books-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- TELA 4: EMPRÉSTIMOS -->
+        <section class="page" data-page-panel="emprestimos">
+          <div class="hero-row">
+            <div>
+              <p class="eyebrow">Circulação</p>
+              <h2>Empréstimos</h2>
+              <p class="muted">Registre empréstimos e acompanhe as devoluções do acervo.</p>
+            </div>
+            <button id="open-loan-modal" class="button primary" type="button">+ Novo empréstimo</button>
+          </div>
+
+          <section class="stats-grid loans-stats">
+            <article class="stat-card small"><div><span>Total</span><strong id="loan-total">—</strong></div></article>
+            <article class="stat-card small"><div><span>Ativos</span><strong id="loan-active">—</strong></div></article>
+            <article class="stat-card small"><div><span>Devolvidos</span><strong id="loan-returned">—</strong></div></article>
+          </section>
+
+          <article class="panel">
+            <div class="toolbar">
+              <label class="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input id="loan-search" type="search" placeholder="Buscar por aluno ou livro..." />
+              </label>
+              <select id="loan-status-filter" class="select-compact" aria-label="Filtrar por status">
+                <option value="">Todos os status</option>
+                <option value="Ativo">Ativos</option>
+                <option value="Devolvido">Devolvidos</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Aluno</th><th>Livro</th><th>Empréstimo</th><th>Prev. devolução</th><th>Status</th><th></th></tr></thead>
+                <tbody id="loans-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <!-- MODAL: CADASTRAR LIVRO -->
+  <div id="book-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal="book-modal"></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="book-modal-title" tabindex="-1">
+      <div class="modal-head">
+        <div><p class="eyebrow">Novo registro</p><h2 id="book-modal-title">Cadastrar livro</h2></div>
+        <button class="icon-button close" data-close-modal="book-modal" type="button" aria-label="Fechar">×</button>
+      </div>
+      <form id="book-form" class="form-grid">
+        <label class="field span-2"><span>Título</span><input name="titulo" required placeholder="Ex.: O Cortiço" /></label>
+        <label class="field"><span>ISBN</span><input name="isbn" inputmode="numeric" minlength="10" maxlength="17" required placeholder="9780000000000" /></label>
+        <label class="field"><span>Ano de publicação</span><input id="book-year" name="anoPublicacao" type="number" min="0" max="2100" required /></label>
+        <label class="field"><span>Quantidade</span><input name="quantidade" type="number" min="0" required value="1" /></label>
+        <label class="field"><span>Autor</span><select id="book-author" name="autorId" required></select></label>
+        <div class="span-2 helper-row">
+          <span>O autor não aparece na lista?</span>
+          <button id="show-author-fields" class="text-button" type="button">Cadastrar autor rapidamente</button>
+        </div>
+        <div id="author-inline-fields" class="inline-create span-2" hidden>
+          <label class="field"><span>Nome do autor</span><input id="author-name" placeholder="Nome completo" /></label>
+          <label class="field"><span>Nacionalidade</span><input id="author-nationality" value="Brasileira" /></label>
+          <label class="field"><span>Data de nascimento</span><input id="author-birth" type="date" value="1980-01-01" /></label>
+          <button id="create-author" class="button secondary align-end" type="button">Salvar autor</button>
+        </div>
+        <div id="book-form-error" class="inline-alert error span-2" hidden></div>
+        <div class="modal-actions span-2">
+          <button class="button ghost" data-close-modal="book-modal" type="button">Cancelar</button>
+          <button id="save-book" class="button primary" type="submit">Cadastrar livro</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- MODAL: NOVO EMPRÉSTIMO -->
+  <div id="loan-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal="loan-modal"></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loan-modal-title" tabindex="-1">
+      <div class="modal-head">
+        <div><p class="eyebrow">Nova movimentação</p><h2 id="loan-modal-title">Registrar empréstimo</h2></div>
+        <button class="icon-button close" data-close-modal="loan-modal" type="button" aria-label="Fechar">×</button>
+      </div>
+      <form id="loan-form" class="form-grid">
+        <label class="field span-2"><span>Aluno</span><select id="loan-student" name="alunoId" required></select></label>
+        <label class="field span-2"><span>Livro</span><select id="loan-book" name="livroId" required></select></label>
+        <label class="field span-2"><span>Data prevista para devolução</span><input id="loan-due-date" name="dataPrevistaDevolucao" type="date" required /></label>
+        <div class="span-2 helper-row">
+          <span>Aluno ainda não cadastrado?</span>
+          <button id="show-student-fields" class="text-button" type="button">Cadastrar aluno rapidamente</button>
+        </div>
+        <div id="student-inline-fields" class="inline-create span-2" hidden>
+          <label class="field"><span>Nome</span><input id="student-name" placeholder="Nome do aluno" /></label>
+          <label class="field"><span>Matrícula</span><input id="student-registration" placeholder="2026003" /></label>
+          <label class="field span-2"><span>E-mail</span><input id="student-email" type="email" placeholder="aluno@email.com" /></label>
+          <button id="create-student" class="button secondary align-end" type="button">Salvar aluno</button>
+        </div>
+        <div id="loan-form-error" class="inline-alert error span-2" hidden></div>
+        <div class="modal-actions span-2">
+          <button class="button ghost" data-close-modal="loan-modal" type="button">Cancelar</button>
+          <button id="save-loan" class="button primary" type="submit">Confirmar empréstimo</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
+

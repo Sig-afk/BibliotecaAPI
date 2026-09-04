@@ -4,6 +4,7 @@ using BibliotecaAPI.Repositories;
 using BibliotecaAPI.Models;
 using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Exceptions;
+using BibliotecaAPI.Data;
 
 namespace BibliotecaAPI.Tests.Services;
 
@@ -12,6 +13,7 @@ public class EmprestimoServiceTests
     private readonly Mock<IEmprestimoRepository> _emprestimoRepoMock;
     private readonly Mock<ILivroRepository> _livroRepoMock;
     private readonly Mock<IAlunoRepository> _alunoRepoMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly EmprestimoService _service;
 
     public EmprestimoServiceTests()
@@ -19,11 +21,16 @@ public class EmprestimoServiceTests
         _emprestimoRepoMock = new Mock<IEmprestimoRepository>();
         _livroRepoMock = new Mock<ILivroRepository>();
         _alunoRepoMock = new Mock<IAlunoRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _unitOfWorkMock
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         _service = new EmprestimoService(
             _emprestimoRepoMock.Object,
             _livroRepoMock.Object,
-            _alunoRepoMock.Object
+            _alunoRepoMock.Object,
+            _unitOfWorkMock.Object
         );
     }
 
@@ -45,8 +52,6 @@ public class EmprestimoServiceTests
         _alunoRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(aluno);
         _livroRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(livro);
         _emprestimoRepoMock.Setup(r => r.GetEmprestimoAtivoAsync(1, 1)).ReturnsAsync((Emprestimo?)null);
-        _emprestimoRepoMock.Setup(r => r.AddAsync(It.IsAny<Emprestimo>()))
-            .ReturnsAsync((Emprestimo e) => e);
 
         // Act
         var resultado = await _service.CreateAsync(dto);
@@ -56,6 +61,9 @@ public class EmprestimoServiceTests
         Assert.Equal("João", resultado.NomeAluno);
         Assert.Equal("Clean Code", resultado.TituloLivro);
         Assert.Equal("Ativo", resultado.Status);
+        _unitOfWorkMock.Verify(
+            unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -69,8 +77,6 @@ public class EmprestimoServiceTests
         _alunoRepoMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(aluno);
         _livroRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(livro);
         _emprestimoRepoMock.Setup(r => r.GetEmprestimoAtivoAsync(2, 1)).ReturnsAsync((Emprestimo?)null);
-        _emprestimoRepoMock.Setup(r => r.AddAsync(It.IsAny<Emprestimo>()))
-            .ReturnsAsync((Emprestimo e) => e);
 
         // Act
         await _service.CreateAsync(dto);
@@ -166,6 +172,9 @@ public class EmprestimoServiceTests
         // Assert
         Assert.Equal("Devolvido", resultado.Status);
         Assert.NotNull(resultado.DataDevolucao);
+        _unitOfWorkMock.Verify(
+            unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

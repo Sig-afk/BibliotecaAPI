@@ -4,7 +4,7 @@ using BibliotecaAPI.Models;
 
 namespace BibliotecaAPI.Repositories;
 
-public class LivroRepository : ILivroRepository
+public sealed class LivroRepository : ILivroRepository
 {
     private readonly BibliotecaContext _context;
 
@@ -15,7 +15,10 @@ public class LivroRepository : ILivroRepository
 
     public async Task<IEnumerable<Livro>> GetAllAsync(string? titulo, string? autor)
     {
-        var query = _context.Livros.Include(l => l.Autor).AsQueryable();
+        var query = _context.Livros
+            .AsNoTracking()
+            .Include(l => l.Autor)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(titulo))
             query = query.Where(l => l.Titulo.ToLower().Contains(titulo.ToLower()));
@@ -31,14 +34,9 @@ public class LivroRepository : ILivroRepository
         return await _context.Livros.Include(l => l.Autor).FirstOrDefaultAsync(l => l.Id == id);
     }
 
-    public Task<Livro> AddAsync(Livro livro)
+    public void Add(Livro livro)
     {
         _context.Livros.Add(livro);
-        return Task.FromResult(livro);
     }
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
 }

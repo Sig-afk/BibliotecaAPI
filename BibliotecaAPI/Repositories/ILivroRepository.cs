@@ -6,6 +6,5 @@ public interface ILivroRepository
 {
     Task<IEnumerable<Livro>> GetAllAsync(string? titulo, string? autor);
     Task<Livro?> GetByIdAsync(int id);
-    Task<Livro> AddAsync(Livro livro);
-    Task SaveChangesAsync();
+    void Add(Livro livro);
 }
