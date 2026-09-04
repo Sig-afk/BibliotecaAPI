@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Sistema web da BibliotecaAPI para gerenciamento de livros e empréstimos." />
   <title>Biblioteca | Gestão</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=editorial-1" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -82,6 +82,7 @@
       </div>
 
       <nav class="sidebar-nav" aria-label="Navegação principal">
+        <span class="nav-label">Menu principal</span>
         <button class="nav-item active" data-page="dashboard" type="button">
           <span class="nav-icon">⌂</span><span>Dashboard</span>
         </button>
@@ -101,6 +102,7 @@
         <button id="logout-button" class="nav-item logout" type="button">
           <span class="nav-icon">↪</span><span>Sair</span>
         </button>
+        <small class="sidebar-signature">Acervo &amp; memória · 2026</small>
       </div>
     </aside>
 
@@ -114,6 +116,7 @@
           <h1 id="page-title">Dashboard</h1>
         </div>
         <div class="topbar-actions">
+          <span id="current-date" class="current-date desktop-only"></span>
           <a class="button ghost desktop-only" href="/docs" target="_blank" rel="noreferrer">Documentação API</a>
           <div class="user-chip">
             <div id="user-avatar" class="avatar">B</div>
@@ -125,10 +128,10 @@
       <main id="main-content" class="content" tabindex="-1">
         <!-- TELA 2: DASHBOARD -->
         <section class="page active" data-page-panel="dashboard">
-          <div class="hero-row">
+          <div class="hero-row dashboard-hero">
             <div>
               <p class="eyebrow">Resumo operacional</p>
-              <h2>Visão geral da biblioteca</h2>
+              <h2>Uma biblioteca bem cuidada<br /><em>transforma histórias.</em></h2>
               <p class="muted">Acompanhe o acervo, usuários e movimentações em um só lugar.</p>
             </div>
             <button id="refresh-dashboard" class="button secondary" type="button"><span class="refresh-icon" aria-hidden="true">↻</span> Atualizar dados</button>
@@ -136,18 +139,22 @@
 
           <section class="stats-grid" aria-label="Indicadores">
             <article class="stat-card">
+              <span class="card-index" aria-hidden="true">01</span>
               <span class="stat-icon">▤</span>
               <div><span>Livros cadastrados</span><strong id="count-livros">—</strong><small id="count-exemplares">— exemplares disponíveis</small></div>
             </article>
             <article class="stat-card">
+              <span class="card-index" aria-hidden="true">02</span>
               <span class="stat-icon">⇄</span>
               <div><span>Empréstimos</span><strong id="count-emprestimos">—</strong><small id="count-ativos">— ativos</small></div>
             </article>
             <article class="stat-card">
+              <span class="card-index" aria-hidden="true">03</span>
               <span class="stat-icon">◎</span>
               <div><span>Alunos</span><strong id="count-alunos">—</strong><small>Usuários cadastrados</small></div>
             </article>
             <article class="stat-card">
+              <span class="card-index" aria-hidden="true">04</span>
               <span class="stat-icon">✎</span>
               <div><span>Autores</span><strong id="count-autores">—</strong><small>No catálogo atual</small></div>
             </article>
@@ -312,7 +319,6 @@
     </section>
   </div>
 
-  <script src="/app.js" defer></script>
+  <script src="/app.js?v=editorial-1" defer></script>
 </body>
 </html>
-

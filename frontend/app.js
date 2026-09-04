@@ -471,6 +471,15 @@ function setDefaultDueDate() {
   $('#book-year').value = String(new Date().getFullYear());
 }
 
+function setCurrentDate() {
+  const date = new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long'
+  }).format(new Date());
+  $('#current-date').textContent = date.charAt(0).toUpperCase() + date.slice(1);
+}
+
 function bindEvents() {
   $('#login-form').addEventListener('submit', handleLogin);
   $('#toggle-password').addEventListener('click', () => {
@@ -540,4 +549,5 @@ function restoreSession() {
 
 bindEvents();
 setDefaultDueDate();
+setCurrentDate();
 restoreSession();
